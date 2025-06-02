@@ -102,7 +102,7 @@ export default function StoryPage() {
   }
 
   const currentStoryPage = storyPages[currentPage]
-  const isCustomImage = currentStoryPage.image && !currentStoryPage.image.includes('placeholder.svg')
+  const isCustomImage = currentStoryPage.image && typeof currentStoryPage.image === 'string' && !currentStoryPage.image.includes('placeholder.svg')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 relative overflow-hidden">

@@ -4,7 +4,7 @@ import path from "path";
 
 export interface ImageGenerationRequest {
   prompt: string;
-  subjectReference: string; // Base64 data URI or URL of the uploaded photo
+  subjectReference: string; // URL or data URI of the reference image
   aspectRatio?: string;
 }
 
@@ -31,6 +31,7 @@ export async function generateImage(request: ImageGenerationRequest): Promise<Ge
     };
 
     console.log('Generating image with prompt:', request.prompt.substring(0, 100) + '...');
+    console.log('Using subject reference URL:', request.subjectReference.substring(0, 50) + '...');
     
     const output = await replicate.run("minimax/image-01", { input }) as string[];
     
@@ -56,6 +57,7 @@ export async function generateStoryImages(
   storyId: string
 ): Promise<GeneratedImage[]> {
   console.log(`Generating ${storyParts.length} images for story ${storyId}`);
+  console.log('Using subject reference URL:', subjectReference);
   
   try {
     // Generate all images in parallel for better performance
@@ -82,7 +84,7 @@ export async function generateStoryImages(
   }
 }
 
-// Helper function to convert File to base64 data URI
+// Helper function to convert File to base64 data URI (kept for potential future use)
 export async function fileToDataUri(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -92,7 +94,7 @@ export async function fileToDataUri(file: File): Promise<string> {
   });
 }
 
-// Helper function to convert base64 data URI to buffer for saving
+// Helper function to convert base64 data URI to buffer for saving (kept for potential future use)
 export function dataUriToBuffer(dataUri: string): Buffer {
   const base64Data = dataUri.split(',')[1];
   return Buffer.from(base64Data, 'base64');

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, ArrowRight, Upload, X, Image as ImageIcon } from "lucide-react"
+import { Sparkles, ArrowRight, Image as ImageIcon, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,56 +30,45 @@ export default function CreateStoryPage() {
   const [chineseLevel, setChineseLevel] = useState("")
   const [loading, setLoading] = useState(false)
   const [includeImages, setIncludeImages] = useState(false)
-  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null)
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [imageUrl, setImageUrl] = useState("")
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          title: "File too large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive"
-        })
-        return
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file.",
-          variant: "destructive"
-        })
-        return
-      }
-
-      setPhotoFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setUploadedPhoto(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+  const handleImageUrlChange = (url: string) => {
+    setImageUrl(url)
+    
+    // Simple URL validation and preview
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      setImagePreview(url)
+    } else {
+      setImagePreview(null)
     }
   }
 
-  const removePhoto = () => {
-    setUploadedPhoto(null)
-    setPhotoFile(null)
-  }
-
-  const convertImageToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result as string
-        // Remove the data URL prefix to get just the base64 data
-        const base64Data = result.split(',')[1]
-        resolve(base64Data)
+  const isValidImageUrl = (url: string) => {
+    if (!url) return false
+    try {
+      const urlObj = new URL(url)
+      // Check for valid protocols
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return false
       }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
+      // Check if it's a Google Images search result (not a direct image)
+      if (url.includes('google.com/imgres') || url.includes('googleusercontent.com/proxy')) {
+        return false
+      }
+      // Check for common image file extensions
+      const pathname = urlObj.pathname.toLowerCase()
+      const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
+      const hasValidExtension = validExtensions.some(ext => pathname.endsWith(ext))
+      
+      // Allow if it has valid extension OR if it's from common image hosting services
+      const commonHosts = ['imgur.com', 'postimg.cc', 'i.imgur.com', 'unsplash.com', 'picsum.photos']
+      const isFromImageHost = commonHosts.some(host => urlObj.hostname.includes(host))
+      
+      return hasValidExtension || isFromImageHost
+    } catch {
+      return false
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,10 +83,10 @@ export default function CreateStoryPage() {
       return
     }
 
-    if (includeImages && !photoFile) {
+    if (includeImages && !isValidImageUrl(imageUrl)) {
       toast({
-        title: "Photo required",
-        description: "Please upload a photo to generate custom images.",
+        title: "Invalid image URL",
+        description: "Please enter a valid HTTP/HTTPS image URL.",
         variant: "destructive"
       })
       return
@@ -106,14 +95,7 @@ export default function CreateStoryPage() {
     setLoading(true)
     
     try {
-      let subjectReference: string | undefined = undefined
-      
-      if (includeImages && photoFile) {
-        // Convert the uploaded photo to base64 for the API
-        subjectReference = await convertImageToBase64(photoFile)
-      }
-
-      // Call the API route instead of the function directly
+      // Call the API route with the image URL directly
       const response = await fetch('/api/generate-story', {
         method: 'POST',
         headers: {
@@ -124,7 +106,7 @@ export default function CreateStoryPage() {
           ageGroup,
           chineseLevel,
           includeImages,
-          subjectReference,
+          subjectReference: includeImages ? imageUrl : undefined,
           storyId: Date.now().toString()
         }),
       })
@@ -141,14 +123,14 @@ export default function CreateStoryPage() {
       }
 
       setStory(data.story)
-      
+
       toast({
         title: "✨ Story created!",
         description: includeImages 
           ? "Your magical bilingual story with custom images has been generated!"
           : "Your magical bilingual story has been generated!",
       })
-      
+
       router.push("/story")
     } catch (error: any) {
       console.error("Error generating story:", error)
@@ -259,7 +241,7 @@ export default function CreateStoryPage() {
                       Generate Custom Images
                     </Label>
                     <p className="text-sm text-purple-600 mt-1">
-                      Upload a photo to create personalized story illustrations
+                      Provide an image URL to create personalized story illustrations
                     </p>
                   </div>
                   <Switch
@@ -267,11 +249,11 @@ export default function CreateStoryPage() {
                     onCheckedChange={setIncludeImages}
                     className="data-[state=checked]:bg-purple-600"
                   />
-                </div>
+              </div>
 
                 <AnimatePresence>
                   {includeImages && (
-                    <motion.div
+              <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
@@ -279,87 +261,101 @@ export default function CreateStoryPage() {
                       className="space-y-4"
                     >
                       <div>
-                        <Label className="text-purple-700 font-medium">
-                          Upload Reference Photo *
+                        <Label htmlFor="image-url" className="text-purple-700 font-medium">
+                          Reference Image URL *
                         </Label>
                         <p className="text-sm text-purple-600 mb-3">
-                          Upload a photo of your child, pet, or character to include in the story
+                          Enter the URL of an image featuring your character (child, pet, etc.)
                         </p>
                         
-                        {uploadedPhoto ? (
-                          <div className="relative inline-block">
-                            <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-purple-200">
-                              <Image
-                                src={uploadedPhoto}
-                                alt="Uploaded reference"
-                                width={128}
-                                height={128}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              className="absolute -top-2 -right-2 rounded-full w-6 h-6 p-0"
-                              onClick={removePhoto}
-                            >
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center hover:border-purple-300 transition-colors">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handlePhotoUpload}
-                              className="hidden"
-                              id="photo-upload"
+                        <div className="space-y-3">
+                          <div className="relative">
+                      <Input
+                              id="image-url"
+                              type="url"
+                              placeholder="https://i.imgur.com/example.jpg"
+                              value={imageUrl}
+                              onChange={(e) => handleImageUrlChange(e.target.value)}
+                              className="border-purple-200 focus:border-purple-400 focus:ring-purple-400 pr-10"
                             />
-                            <Label
-                              htmlFor="photo-upload"
-                              className="cursor-pointer flex flex-col items-center space-y-2"
-                            >
-                              <Upload className="w-8 h-8 text-purple-400" />
-                              <span className="text-purple-600 font-medium">
-                                Click to upload photo
-                              </span>
-                              <span className="text-sm text-purple-500">
-                                PNG, JPG, or WebP (max 5MB)
-                              </span>
-                            </Label>
-                          </div>
-                        )}
+                            <ExternalLink className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-400" />
+                  </div>
+
+                          {imageUrl && !isValidImageUrl(imageUrl) && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                              <p className="text-sm text-red-700">
+                                <strong>⚠️ Invalid URL:</strong> Please provide a direct link to an image file, not a Google Images search result. The URL should end with .jpg, .png, .gif, or .webp, or be from an image hosting service like Imgur.
+                              </p>
+                            </div>
+                          )}
+                          
+                          {imagePreview && (
+                            <div className="relative inline-block">
+                              <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-purple-200">
+                                <Image
+                                  src={imagePreview}
+                                  alt="Image preview"
+                                  width={128}
+                                  height={128}
+                                  className="w-full h-full object-cover"
+                                  onError={() => {
+                                    setImagePreview(null)
+                                    toast({
+                                      title: "Invalid image",
+                                      description: "The image URL couldn't be loaded. Please check the URL.",
+                                      variant: "destructive"
+                                    })
+                                  }}
+                      />
+                    </div>
+                              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                ✓ Valid
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                         <p className="text-sm text-amber-700">
-                          <strong>✨ AI Magic:</strong> Your uploaded photo will be used to create custom illustrations featuring your character in different story scenes. The AI will maintain character consistency throughout the story.
+                          <strong>✨ AI Magic:</strong> The image from your URL will be used to create custom illustrations featuring your character in different story scenes. Make sure the image is publicly accessible and shows the character clearly.
                         </p>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-700">
+                          <strong>💡 How to get a direct image URL:</strong>
+                        </p>
+                        <ul className="text-sm text-blue-700 mt-2 space-y-1 list-disc list-inside">
+                          <li>Upload to <a href="https://imgur.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Imgur</a> and copy the direct link</li>
+                          <li>Upload to <a href="https://postimg.cc" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">PostImg</a> and use the direct URL</li>
+                          <li>Right-click any image online → "Copy image address" (not "Copy link")</li>
+                          <li>❌ <strong>Don't use:</strong> Google Images search results or thumbnail URLs</li>
+                        </ul>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+                </div>
 
-              <Button
-                type="submit"
-                disabled={loading || !prompt.trim() || !ageGroup || !chineseLevel || (includeImages && !photoFile)}
+                <Button
+                  type="submit"
+                disabled={loading || !prompt.trim() || !ageGroup || !chineseLevel || (includeImages && !isValidImageUrl(imageUrl))}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
                     {includeImages ? "Creating story with images..." : "Creating your magical story..."}
-                  </div>
-                ) : (
+                    </div>
+                  ) : (
                   <div className="flex items-center justify-center">
                     <Sparkles className="w-5 h-5 mr-2" />
                     Create {includeImages ? "Illustrated " : ""}Story
                     <ArrowRight className="w-5 h-5 ml-2" />
-                  </div>
-                )}
-              </Button>
+                    </div>
+                  )}
+                </Button>
             </form>
           </div>
 

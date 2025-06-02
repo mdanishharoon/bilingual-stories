@@ -4,40 +4,32 @@ import { generateCompleteStory } from '@/lib/gemini-story'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { 
-      prompt, 
-      ageGroup, 
-      chineseLevel, 
-      includeImages = false, 
-      subjectReference,
-      storyId 
-    } = body
+    const { prompt, ageGroup, chineseLevel, includeImages, subjectReference, storyId } = body
 
     // Validate required fields
     if (!prompt || !ageGroup || !chineseLevel) {
       return NextResponse.json(
-        { error: 'prompt, ageGroup, and chineseLevel are required' },
+        { error: 'Missing required fields: prompt, ageGroup, and chineseLevel are required' },
         { status: 400 }
       )
     }
 
-    // If images are requested, validate subject reference
-    if (includeImages && !subjectReference) {
-      return NextResponse.json(
-        { error: 'subjectReference is required when includeImages is true' },
-        { status: 400 }
-      )
+    // Validate image URL if images are requested
+    if (includeImages && subjectReference) {
+      try {
+        new URL(subjectReference)
+        if (!subjectReference.startsWith('http://') && !subjectReference.startsWith('https://')) {
+          throw new Error('Invalid protocol')
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { error: 'Invalid image URL provided. Please provide a valid HTTP/HTTPS URL.' },
+          { status: 400 }
+        )
+      }
     }
 
-    console.log('Generating story with options:', { 
-      prompt: prompt.substring(0, 50) + '...', 
-      ageGroup, 
-      chineseLevel, 
-      includeImages,
-      hasSubjectReference: !!subjectReference
-    })
-
-    // Generate the complete story
+    // Generate the story
     const story = await generateCompleteStory(
       prompt,
       ageGroup,
@@ -45,25 +37,31 @@ export async function POST(request: NextRequest) {
       {
         includeImages,
         subjectReference,
-        storyId: storyId || Date.now().toString()
+        storyId
       }
     )
 
-    console.log('Story generation completed successfully')
+    return NextResponse.json({ story })
+  } catch (error: any) {
+    console.error('Story generation error:', error)
+    
+    // Handle specific error types
+    if (error.message?.includes('Gemini API key')) {
+      return NextResponse.json(
+        { error: 'Gemini API key is not configured' },
+        { status: 500 }
+      )
+    }
 
-    return NextResponse.json({ 
-      story,
-      message: includeImages 
-        ? 'Story generated successfully with custom images'
-        : 'Story generated successfully'
-    })
-  } catch (error) {
-    console.error('Story generation API error:', error)
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    
+    if (error.message?.includes('Replicate')) {
+      return NextResponse.json(
+        { error: 'Image generation service is not available' },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
-      { error: `Failed to generate story: ${errorMessage}` },
+      { error: error.message || 'An error occurred while generating the story' },
       { status: 500 }
     )
   }

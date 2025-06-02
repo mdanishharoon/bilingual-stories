@@ -82,7 +82,7 @@ export async function generateBilingualStory(
     1. ALL text MUST be in Chinese characters - no English or Latin characters allowed
     2. Convert ALL measurements and numbers to Chinese characters (e.g., "1 year old" → "一岁")
     3. Translate ALL names to Chinese characters:
-       - Western names should use phonetic translation (e.g., "${childName}" → use appropriate Chinese characters)
+       - Western names should use phonetic translation
        - Family members should use proper Chinese terms (e.g., "Dad" → "爸爸", "Mom" → "妈妈", "Grandma" → "奶奶")
        - Cultural terms should use standard Chinese translations (e.g., "Indian" → "印度")
     4. Convert ALL actions and descriptions to natural Chinese:
@@ -90,13 +90,13 @@ export async function generateBilingualStory(
        - "include spices" → "包括香料"
     5. Use appropriate Chinese measure words (量词) for all nouns
     6. Ensure all sentences follow Chinese grammar structure, not English structure
-    7. Use Chinese punctuation (。，！？) instead of English punctuation
+    7. Use Chinese punctuation (。，！？) instead of English punctuation, DO NOT USE ANY ENGLISH CHARACTERS WHATSOEVER
 
     Story Parameters:
-    - Main Character: ${childName}
-    - Companion: ${companion}
-    - Age: ${age} years old
     - Theme: ${prompt}
+    - Age: ${age} years old
+    ${childName ? `- Main Character: ${childName}` : '- Main Character: A young adventurer'}
+    ${companion ? `- Companion: ${companion}` : '- Companion: A helpful friend'}
 
     The story should be age-appropriate with:
     - Complexity: ${complexity}
@@ -107,8 +107,7 @@ export async function generateBilingualStory(
 
     ${culturalContext}
 
-    If provided, weave this memory naturally into the narrative while maintaining cultural authenticity:
-    Memory context: ${memory || 'No specific memory provided'}
+    ${memory ? `Weave this memory naturally into the narrative while maintaining cultural authenticity: ${memory}` : 'Create an original, engaging story.'}
 
     IMPORTANT: Break the story into exactly 5 parts. Each part should be a complete scene or moment that can be illustrated. For each part, also provide a detailed image generation prompt that describes the scene visually for AI image generation.
 
@@ -241,7 +240,14 @@ export async function generateCompleteStory(
   } = {}
 ): Promise<Story> {
   // First, generate the story text
-  const story = await generateBilingualStory(prompt, ageGroup, chineseLevel)
+  const story = await generateBilingualStory(
+    prompt,
+    ageGroup,
+    undefined,
+    undefined,
+    undefined,
+    undefined
+  )
   
   // If images are requested and we have a subject reference, generate images
   if (options.includeImages && options.subjectReference && story.parts) {
