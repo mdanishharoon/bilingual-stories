@@ -32,17 +32,18 @@ export async function generateImage(request: ImageGenerationRequest): Promise<Ge
 
     console.log('Generating image with prompt:', request.prompt.substring(0, 100) + '...');
     
-    const output = await replicate.run("minimax/image-01", { input }) as string[];
+    const output = await replicate.run("minimax/image-01", { input });
     
-    if (!output || output.length === 0) {
+    if (!output) {
       throw new Error('No image generated from Replicate API');
     }
+    console.log('Raw Replicate output:', output);
 
     // Return the first generated image URL
-    const imageUrl = output[0];
+    const imageUrl = output[0].url();
     
     return {
-      url: imageUrl,
+      url: imageUrl
     };
   } catch (error) {
     console.error('Error generating image:', error);

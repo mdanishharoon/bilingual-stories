@@ -1,9 +1,9 @@
-import Link from "next/link"
-import { ArrowRight, BookOpen, Heart, Sparkles, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import StoryPreview from "@/components/story-preview"
-import HowItWorksSection from "@/components/how-it-works-section"
-import FloatingElements from "@/components/floating-elements"
+import Link from "next/link";
+import { ArrowRight, BookOpen, Heart, Sparkles, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import StoryPreview from "@/components/story-preview";
+import HowItWorksSection from "@/components/how-it-works-section";
+import FloatingElements from "@/components/floating-elements";
 
 export default function Home() {
   return (
@@ -28,7 +28,8 @@ export default function Home() {
             </div>
 
             <p className="text-lg md:text-xl text-emerald-600 mb-8 max-w-lg animate-fade-in-delay font-medium">
-              Preserve your family's cultural heritage through personalized bilingual storybooks that spark imagination
+              Preserve your family's cultural heritage through personalized
+              bilingual storybooks that spark imagination
             </p>
 
             <Link href="/create" className="group inline-block">
@@ -70,9 +71,12 @@ export default function Home() {
               <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce-in">
                 <Heart className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-purple-700 mb-2">Cultural Connection</h3>
+              <h3 className="text-xl font-bold text-purple-700 mb-2">
+                Cultural Connection
+              </h3>
               <p className="text-purple-600">
-                Bridge generations and preserve precious family traditions through storytelling
+                Bridge generations and preserve precious family traditions
+                through storytelling
               </p>
             </div>
 
@@ -86,9 +90,12 @@ export default function Home() {
               >
                 <BookOpen className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-purple-700 mb-2">Language Learning</h3>
+              <h3 className="text-xl font-bold text-purple-700 mb-2">
+                Language Learning
+              </h3>
               <p className="text-purple-600">
-                Help children learn multiple languages naturally through engaging stories
+                Help children learn multiple languages naturally through
+                engaging stories
               </p>
             </div>
 
@@ -102,12 +109,16 @@ export default function Home() {
               >
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-purple-700 mb-2">Magical Memories</h3>
-              <p className="text-purple-600">Transform everyday moments into treasured bedtime stories</p>
+              <h3 className="text-xl font-bold text-purple-700 mb-2">
+                Magical Memories
+              </h3>
+              <p className="text-purple-600">
+                Transform everyday moments into treasured bedtime stories
+              </p>
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
