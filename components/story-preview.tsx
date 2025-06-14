@@ -6,22 +6,22 @@ import Image from "next/image"
 
 const sampleStory = [
   {
-    english: "The waves danced around their feet as they laughed together.",
+    english: "A day at the zoo with daddy!",
     chinese: "海浪在他们的脚边舞动，他们一起笑着。",
-    image: "/img1.png",
-    quote: "The day Grandma taught me to make dumplings...",
+    image: "/img2.png",
+    quote: "The day I saw many new animals..",
   },
   {
-    english: "Grandma and Lily walked along the beach, collecting seashells.",
+    english: "Grandma and Amy walked along the beach, collecting seashells.",
     chinese: "奶奶和莉莉沿着海滩散步，收集贝壳。",
-    image: "/img2.png",
+    image: "/img1.png",
     quote: "A magical afternoon by the ocean...",
   },
   {
-    english: "Lily found a special shell that looked like a star.",
+    english: "Lily's day with her grandma in the park.",
     chinese: "莉莉找到了一个特别的贝壳，看起来像一颗星星。",
     image: "/img3.png",
-    quote: "Discovering treasures together...",
+    quote: "Picnic day at the zo...",
   },
 ]
 
