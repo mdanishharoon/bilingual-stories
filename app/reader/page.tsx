@@ -15,7 +15,7 @@ export default function Reader() {
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => handleNextPage(),
     onSwipedRight: () => handlePrevPage(),
-    preventDefaultTouchmoveEvent: true,
+    //preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   })
 
@@ -47,7 +47,7 @@ export default function Reader() {
   }
 
   const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(story.pages.length - 1, prev + 1))
+    setCurrentPage((prev) => Math.min(story.parts.length - 1, prev + 1))
   }
 
   const handleClose = () => {
@@ -75,7 +75,7 @@ export default function Reader() {
       </div>
 
       <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10">
-        {currentPage < story.pages.length - 1 && (
+        {currentPage < story.parts.length - 1 && (
           <button
             onClick={handleNextPage}
             className="text-white bg-purple-800/50 backdrop-blur-sm p-3 rounded-full hover:bg-purple-700/60 transition-colors shadow-lg"
@@ -94,12 +94,12 @@ export default function Reader() {
           transition={{ duration: 0.3 }}
           className="h-full w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-8"
         >
-          {/* Image section - smaller */}
-          <div className="w-full md:w-1/2 lg:w-2/5 relative h-1/3 md:h-3/4 mb-4 md:mb-0 md:mr-4">
+          {/* Image section - taller, fills parent */}
+          <div className="w-full md:w-1/2 lg:w-2/5 relative h-full md:h-full mb-4 md:mb-0 md:mr-4 flex flex-col justify-center">
             <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
               <Image
-                src={story.pages[currentPage].image || "/placeholder.svg"}
-                alt={story.pages[currentPage].description}
+                src={story.parts[currentPage].image || "/placeholder.svg"}
+                alt={story.parts[currentPage].english}
                 fill
                 className="object-cover"
               />
@@ -111,19 +111,19 @@ export default function Reader() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <h3 className="text-xl font-bold text-white mb-3">English</h3>
               <p className="text-xl md:text-2xl font-quicksand mb-6 leading-relaxed">
-                {story.pages[currentPage].english}
+                {story.parts[currentPage].english}
               </p>
 
               <h3 className="text-xl font-bold text-amber-200 mb-3">中文</h3>
               <p className="text-xl md:text-2xl text-amber-100 font-medium leading-relaxed">
-                {story.pages[currentPage].chinese}
+                {story.parts[currentPage].chinese}
               </p>
             </motion.div>
           </div>
 
           {/* Page indicators */}
           <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-            {story.pages.map((_, index) => (
+            {story.parts.map((_, index) => (
               <button
                 key={index}
                 className={`rounded-full transition-all ${

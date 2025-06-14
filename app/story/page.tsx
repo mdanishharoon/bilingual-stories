@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { StoryPDFDocument } from "./StoryPDFDocument";
 
 export default function StoryPage() {
   const router = useRouter();
@@ -73,14 +75,6 @@ export default function StoryPage() {
     setSaved(true);
     toast({
       title: "✨ Story saved!",
-      description: "Your magical story has been saved to your library.",
-    });
-  };
-
-  const handleDownloadPDF = () => {
-    toast({
-      title: "📖 PDF Download",
-      description: "This would download the story as a PDF in a real app.",
     });
   };
 
@@ -246,19 +240,6 @@ export default function StoryPage() {
                         {currentStoryPage.chinese}
                       </p>
                     </div>
-
-                    {/* Show image prompt for debugging/development */}
-                    {process.env.NODE_ENV === "development" &&
-                      currentStoryPage.imagePrompt && (
-                        <div className="pt-3 border-t border-purple-100 mt-4">
-                          <h4 className="text-sm font-medium text-gray-500 mb-1">
-                            Image Prompt (Dev)
-                          </h4>
-                          <p className="text-xs text-gray-400 italic">
-                            {currentStoryPage.imagePrompt}
-                          </p>
-                        </div>
-                      )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -293,24 +274,27 @@ export default function StoryPage() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
-            <Button
-              onClick={handleSaveStory}
-              disabled={saved}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg transition-all duration-300"
-              size="sm"
+            <PDFDownloadLink
+              document={
+                <StoryPDFDocument
+                  storyTitle={storyTitle}
+                  chineseTitle={chineseTitle}
+                  storyPages={storyPages}
+                />
+              }
+              fileName={`${storyTitle.replace(/\s+/g, "_")}_Story.pdf`}
             >
-              <Save className="mr-2 h-4 w-4" />
-              {saved ? "✅ Saved" : "💾 Save to Library"}
-            </Button>
-
-            <Button
-              onClick={handleDownloadPDF}
-              className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-              size="sm"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              📖 Download PDF
-            </Button>
+              {({ loading }) => (
+                <Button
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                  size="sm"
+                  disabled={loading}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {loading ? "Generating PDF..." : "📖 Download PDF"}
+                </Button>
+              )}
+            </PDFDownloadLink>
 
             <Button
               onClick={handleReadFullscreen}

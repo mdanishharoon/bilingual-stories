@@ -8,19 +8,19 @@ const sampleStory = [
   {
     english: "The waves danced around their feet as they laughed together.",
     chinese: "海浪在他们的脚边舞动，他们一起笑着。",
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/img1.png",
     quote: "The day Grandma taught me to make dumplings...",
   },
   {
     english: "Grandma and Lily walked along the beach, collecting seashells.",
     chinese: "奶奶和莉莉沿着海滩散步，收集贝壳。",
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/img2.png",
     quote: "A magical afternoon by the ocean...",
   },
   {
     english: "Lily found a special shell that looked like a star.",
     chinese: "莉莉找到了一个特别的贝壳，看起来像一颗星星。",
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/img3.png",
     quote: "Discovering treasures together...",
   },
 ]
@@ -37,7 +37,7 @@ export default function StoryPreview() {
   }, [])
 
   return (
-    <div className="relative bg-gradient-to-br from-purple-100 to-purple-300 rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl">
+    <div className="relative bg-gradient-to-br from-purple-100 to-purple-300 rounded-3xl overflow-hidden w-full shadow-2xl max-w-[540px] mx-auto">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentPage}
@@ -45,13 +45,14 @@ export default function StoryPreview() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full h-full relative"
+          className="relative aspect-[3/2] w-full"
         >
           <Image
             src={sampleStory[currentPage].image || "/placeholder.svg"}
             alt={`Story illustration ${currentPage + 1}`}
             fill
-            className="object-cover"
+            className="object-cover rounded-3xl"
+            priority
           />
 
           {/* Content overlay */}
@@ -60,7 +61,7 @@ export default function StoryPreview() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-white text-lg md:text-xl font-quicksand mb-2 leading-relaxed"
+              className="text-white text-base md:text-lg font-quicksand mb-2 leading-relaxed"
             >
               {sampleStory[currentPage].english}
             </motion.p>
@@ -68,7 +69,7 @@ export default function StoryPreview() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-amber-200 text-base md:text-lg font-medium mb-4"
+              className="text-amber-200 text-sm md:text-base font-medium mb-4"
             >
               {sampleStory[currentPage].chinese}
             </motion.p>
@@ -78,7 +79,7 @@ export default function StoryPreview() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-purple-200 text-sm italic"
+              className="text-purple-200 text-xs italic"
             >
               "{sampleStory[currentPage].quote}"
             </motion.p>

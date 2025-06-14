@@ -10,11 +10,11 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 relative overflow-hidden">
       <FloatingElements />
 
-      <main className="container mx-auto px-4 py-12 md:py-24 relative z-10">
+      <main className="container mx-auto px-4 py-6 md:py-10 relative z-10">
         {/* Hero Section */}
         <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
           {/* Left Column - Hero Content */}
-          <div className="text-left animate-fade-in">
+          <div className="text-left animate-fade-in pl-8 md:pl-16">
             <div className="relative mb-6">
               <h1 className="text-4xl md:text-6xl font-bold text-purple-700 mb-4 animate-float leading-tight">
                 <span className="inline-flex items-center">
@@ -41,14 +41,6 @@ export default function Home() {
                 Start Your Story
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </Link>
-
-            <Link
-              href="/library"
-              className="mt-6 flex items-center text-purple-700 hover:text-purple-800 font-medium ml-4"
-            >
-              <BookOpen className="mr-2 h-5 w-5" />
-              View Your Library
             </Link>
           </div>
 

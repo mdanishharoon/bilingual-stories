@@ -3,7 +3,7 @@
 import type React from "react"
 
 import Link from "next/link"
-import { Book, Home, Library } from "lucide-react"
+import { Book, Home } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -35,10 +35,6 @@ export default function Header() {
             <NavLink href="/create" active={pathname === "/create"}>
               <Book className="h-5 w-5" />
               <span className="sr-only sm:not-sr-only sm:ml-2">Create</span>
-            </NavLink>
-            <NavLink href="/library" active={pathname === "/library"}>
-              <Library className="h-5 w-5" />
-              <span className="sr-only sm:not-sr-only sm:ml-2">Library</span>
             </NavLink>
           </nav>
         </div>
